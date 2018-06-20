@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1060</width>
+    <width>1200</width>
     <height>730</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>1060</width>
+    <width>1200</width>
     <height>730</height>
    </size>
   </property>
@@ -25,16 +25,16 @@
      <number>0</number>
     </property>
     <property name="leftMargin">
-     <number>0</number>
+     <number>2</number>
     </property>
     <property name="topMargin">
-     <number>0</number>
+     <number>2</number>
     </property>
     <property name="rightMargin">
-     <number>0</number>
+     <number>2</number>
     </property>
     <property name="bottomMargin">
-     <number>0</number>
+     <number>2</number>
     </property>
     <item>
      <widget class="QWidget" name="widget" native="true">
@@ -61,7 +61,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QComboBox" name="comboBox_3">
+        <widget class="QComboBox" name="comboBox_RequestType">
          <property name="minimumSize">
           <size>
            <width>100</width>
@@ -120,7 +120,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_11">
+        <widget class="QPushButton" name="pushButton_About">
          <property name="minimumSize">
           <size>
            <width>60</width>
@@ -150,8 +150,8 @@
        <widget class="QWidget" name="widget_2" native="true">
         <property name="minimumSize">
          <size>
-          <width>500</width>
-          <height>0</height>
+          <width>600</width>
+          <height>600</height>
          </size>
         </property>
         <layout class="QGridLayout" name="gridLayout">
@@ -173,15 +173,18 @@
          <item row="0" column="0">
           <layout class="QVBoxLayout" name="verticalLayout">
            <property name="spacing">
-            <number>0</number>
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
            </property>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <property name="spacing">
-              <number>0</number>
+              <number>2</number>
              </property>
              <item>
-              <widget class="QComboBox" name="comboBox_2">
+              <widget class="QComboBox" name="comboBox_DataType">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -222,45 +225,53 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit_3">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>65535</width>
-                 <height>30</height>
-                </size>
-               </property>
+              <widget class="QLabel" name="label_key">
                <property name="text">
                 <string>Key</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit">
+              <widget class="QLineEdit" name="lineEdit_Key">
                <property name="minimumSize">
                 <size>
-                 <width>100</width>
+                 <width>50</width>
                  <height>30</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>65535</width>
+                 <width>16777215</width>
                  <height>30</height>
                 </size>
                </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_Value">
                <property name="text">
                 <string>Value</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_2">
+              <widget class="QLineEdit" name="lineEdit_Value">
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>30</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_ADDS">
                <property name="minimumSize">
                 <size>
                  <width>60</width>
@@ -300,7 +311,7 @@
             </layout>
            </item>
            <item>
-            <widget class="QTableWidget" name="tableWidget">
+            <widget class="QTableWidget" name="tableWidget_values">
              <row>
               <property name="text">
                <string>新建行</string>
@@ -331,10 +342,10 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout">
              <property name="spacing">
-              <number>0</number>
+              <number>2</number>
              </property>
              <item>
-              <widget class="QLabel" name="label_5">
+              <widget class="QLabel" name="label_SendDatalenth">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -366,7 +377,7 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_6">
+              <widget class="QPushButton" name="pushButton_LeftDel">
                <property name="minimumSize">
                 <size>
                  <width>60</width>
@@ -385,7 +396,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_7">
+              <widget class="QPushButton" name="pushButton_LeftClean">
                <property name="minimumSize">
                 <size>
                  <width>60</width>
@@ -414,8 +425,8 @@
        <widget class="QWidget" name="widget_3" native="true">
         <property name="minimumSize">
          <size>
-          <width>500</width>
-          <height>0</height>
+          <width>600</width>
+          <height>600</height>
          </size>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
@@ -437,15 +448,34 @@
          <item row="0" column="0">
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <property name="spacing">
-            <number>0</number>
+            <number>5</number>
+           </property>
+           <property name="leftMargin">
+            <number>5</number>
            </property>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <property name="spacing">
+              <number>2</number>
+             </property>
+             <property name="bottomMargin">
               <number>0</number>
              </property>
              <item>
-              <widget class="QLineEdit" name="lineEdit_2">
+              <widget class="QLabel" name="label_Address">
+               <property name="text">
+                <string>Address</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEdit_Address">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="minimumSize">
                 <size>
                  <width>280</width>
@@ -454,59 +484,36 @@
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>65535</width>
+                 <width>16777215</width>
                  <height>30</height>
                 </size>
                </property>
                <property name="text">
-                <string>Address</string>
+                <string/>
                </property>
               </widget>
              </item>
              <item>
-              <spacer name="horizontalSpacer_3">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Ignored</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>37</width>
-                 <height>17</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="radioButton">
+              <widget class="QPushButton" name="pushButton_Connect_2">
                <property name="minimumSize">
                 <size>
-                 <width>0</width>
+                 <width>60</width>
                  <height>30</height>
                 </size>
                </property>
-               <property name="text">
-                <string>Short</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="radioButton_2">
-               <property name="minimumSize">
+               <property name="maximumSize">
                 <size>
-                 <width>0</width>
+                 <width>60</width>
                  <height>30</height>
                 </size>
                </property>
                <property name="text">
-                <string>Long</string>
+                <string>发送</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_4">
+              <widget class="QPushButton" name="pushButton_Connect">
                <property name="minimumSize">
                 <size>
                  <width>60</width>
@@ -527,23 +534,23 @@
             </layout>
            </item>
            <item>
-            <widget class="QTextBrowser" name="textBrowser">
+            <widget class="QTextBrowser" name="textBrowser_return">
              <property name="html">
               <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'SimSun'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;21332313&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <property name="spacing">
-              <number>0</number>
+              <number>2</number>
              </property>
              <item>
-              <widget class="QPushButton" name="pushButton_10">
+              <widget class="QPushButton" name="pushButton_ConnectStatus">
                <property name="minimumSize">
                 <size>
                  <width>30</width>
@@ -562,7 +569,7 @@ p, li { white-space: pre-wrap; }
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="label_7">
+              <widget class="QLabel" name="label_RecvDatalenth">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -613,7 +620,7 @@ p, li { white-space: pre-wrap; }
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_9">
+              <widget class="QPushButton" name="pushButton_RightClean">
                <property name="minimumSize">
                 <size>
                  <width>60</width>
@@ -641,33 +648,6 @@ p, li { white-space: pre-wrap; }
      </layout>
     </item>
    </layout>
-   <zorder>widget</zorder>
-   <zorder>pushButton_3</zorder>
-   <zorder>lineEdit_3</zorder>
-   <zorder>lineEdit</zorder>
-   <zorder>comboBox_2</zorder>
-   <zorder>horizontalSpacer_2</zorder>
-   <zorder>pushButton_2</zorder>
-   <zorder>horizontalSpacer_6</zorder>
-   <zorder>tableWidget</zorder>
-   <zorder>tableWidget</zorder>
-   <zorder>label_5</zorder>
-   <zorder>pushButton_7</zorder>
-   <zorder>horizontalSpacer_4</zorder>
-   <zorder>pushButton_6</zorder>
-   <zorder>pushButton_4</zorder>
-   <zorder>radioButton_2</zorder>
-   <zorder>radioButton</zorder>
-   <zorder>horizontalSpacer_3</zorder>
-   <zorder>lineEdit_2</zorder>
-   <zorder>textBrowser</zorder>
-   <zorder>pushButton_9</zorder>
-   <zorder>pushButton_10</zorder>
-   <zorder>horizontalSpacer_5</zorder>
-   <zorder>label_7</zorder>
-   <zorder>pushButton_8</zorder>
-   <zorder>widget_2</zorder>
-   <zorder>widget_3</zorder>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

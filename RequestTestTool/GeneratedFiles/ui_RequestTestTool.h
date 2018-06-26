@@ -56,6 +56,7 @@ public:
     QLCDNumber *lcdNumber_Send;
     QLabel *label_RecvDatalenth;
     QLCDNumber *lcdNumber_Recv;
+    QComboBox *comboBox_ShowType;
 
     void setupUi(QMainWindow *RequestTestToolClass)
     {
@@ -67,10 +68,10 @@ public:
         centralWidget = new QWidget(RequestTestToolClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         gridLayout = new QGridLayout(centralWidget);
-        gridLayout->setSpacing(2);
+        gridLayout->setSpacing(1);
         gridLayout->setContentsMargins(11, 11, 11, 11);
         gridLayout->setObjectName(QStringLiteral("gridLayout"));
-        gridLayout->setContentsMargins(2, 2, 2, 2);
+        gridLayout->setContentsMargins(1, 1, 1, 1);
         verticalLayout = new QVBoxLayout();
         verticalLayout->setSpacing(0);
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
@@ -99,6 +100,8 @@ public:
         label_2->setObjectName(QStringLiteral("label_2"));
         label_2->setMinimumSize(QSize(0, 25));
         label_2->setMaximumSize(QSize(16777215, 25));
+        label_2->setStyleSheet(QStringLiteral("background-color: rgb(255, 255, 255);"));
+        label_2->setAlignment(Qt::AlignCenter);
 
         horizontalLayout_3->addWidget(label_2);
 
@@ -131,6 +134,8 @@ public:
         label->setObjectName(QStringLiteral("label"));
         label->setMinimumSize(QSize(0, 25));
         label->setMaximumSize(QSize(16777215, 25));
+        label->setStyleSheet(QStringLiteral("background-color: rgb(255, 255, 255);"));
+        label->setAlignment(Qt::AlignCenter);
 
         horizontalLayout_2->addWidget(label);
 
@@ -218,6 +223,13 @@ public:
 
         horizontalLayout->addWidget(lcdNumber_Recv);
 
+        comboBox_ShowType = new QComboBox(centralWidget);
+        comboBox_ShowType->setObjectName(QStringLiteral("comboBox_ShowType"));
+        comboBox_ShowType->setMinimumSize(QSize(60, 30));
+        comboBox_ShowType->setMaximumSize(QSize(60, 30));
+
+        horizontalLayout->addWidget(comboBox_ShowType);
+
 
         gridLayout->addLayout(horizontalLayout, 2, 0, 1, 2);
 
@@ -237,7 +249,7 @@ public:
          << QApplication::translate("RequestTestToolClass", "ASCLL", Q_NULLPTR)
          << QApplication::translate("RequestTestToolClass", "16\350\277\233\345\210\266", Q_NULLPTR)
          << QApplication::translate("RequestTestToolClass", "10\350\277\233\345\210\266", Q_NULLPTR)
-         << QApplication::translate("RequestTestToolClass", "2  \350\277\233\345\210\266", Q_NULLPTR)
+         << QApplication::translate("RequestTestToolClass", "2\350\277\233\345\210\266", Q_NULLPTR)
         );
         textBrowser_Request->setHtml(QApplication::translate("RequestTestToolClass", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -250,7 +262,7 @@ public:
          << QApplication::translate("RequestTestToolClass", "ASCLL", Q_NULLPTR)
          << QApplication::translate("RequestTestToolClass", "16\350\277\233\345\210\266", Q_NULLPTR)
          << QApplication::translate("RequestTestToolClass", "10\350\277\233\345\210\266", Q_NULLPTR)
-         << QApplication::translate("RequestTestToolClass", "2  \350\277\233\345\210\266", Q_NULLPTR)
+         << QApplication::translate("RequestTestToolClass", "2\350\277\233\345\210\266", Q_NULLPTR)
         );
         textBrowser_Response->setHtml(QApplication::translate("RequestTestToolClass", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -271,6 +283,13 @@ public:
         pushButton_Request->setText(QApplication::translate("RequestTestToolClass", "\345\217\221\351\200\201", Q_NULLPTR));
         label_SendDatalenth->setText(QApplication::translate("RequestTestToolClass", "\345\217\221\351\200\201:", Q_NULLPTR));
         label_RecvDatalenth->setText(QApplication::translate("RequestTestToolClass", " \346\216\245\346\224\266:", Q_NULLPTR));
+        comboBox_ShowType->clear();
+        comboBox_ShowType->insertItems(0, QStringList()
+         << QApplication::translate("RequestTestToolClass", "ASCLL", Q_NULLPTR)
+         << QApplication::translate("RequestTestToolClass", "16\350\277\233\345\210\266", Q_NULLPTR)
+         << QApplication::translate("RequestTestToolClass", "10\350\277\233\345\210\266", Q_NULLPTR)
+         << QApplication::translate("RequestTestToolClass", "2  \350\277\233\345\210\266", Q_NULLPTR)
+        );
     } // retranslateUi
 
 };

@@ -2,12 +2,11 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_RequestTestTool.h"
-#include <QNetworkRequest>
-#include <QNetworkAccessManager>
+#include <qtcpsocket.h>
+#include <qsslsocket.h>
 #include <iostream>
 #include <string>
 #include <sstream>  
-#include<QMessageBox>
 #include <QThread>
 
 #define THREAD_START 100
@@ -22,6 +21,8 @@
 #define THREAD_CONNECTED 109
 #define THREAD_END 110
 
+#define THREAD_SSL_SUCCESSFUL 111
+#define THREAD_SSL_FALLED 112
 
 int SetTableWidget(QTableWidget *Utable, int URow, int UCol, QString UValus);
 
@@ -45,6 +46,8 @@ public:
 	NetWorkThread(std::string UHost, unsigned int UPort, bool USSLStatus, std::stringstream &URequestData, std::stringstream &UResponse) 
 				  :Host(UHost), Port(UPort), RequestData(URequestData), Response(UResponse) , SSLStats(USSLStatus){
 		TimeOut = 5000;
+		SSLStats = false;
+		isEncryption = false;
 	};
 	/*
 	UHost : µÿ÷∑
@@ -57,14 +60,17 @@ public:
 	void SetTimeOut(unsigned int UtimeOut);
 	void run();
 public slots:
-	void Disconnect();
-	void Myerror(QAbstractSocket::SocketError socketError);
+	void NW_Disconnect();
+	void NW_Error(QAbstractSocket::SocketError socketError);
+	void NWSSLError();
+	void NW_Encrypted();
 private:
 	unsigned int TimeOut;
 	int IRecvCout;
 	std::string Host;
 	unsigned int Port;
 	bool SSLStats;
+	bool isEncryption;
 	std::stringstream &RequestData;
 	std::stringstream &Response;
 	

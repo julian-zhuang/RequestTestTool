@@ -28,19 +28,19 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
     <property name="leftMargin">
-     <number>2</number>
+     <number>1</number>
     </property>
     <property name="topMargin">
-     <number>2</number>
+     <number>1</number>
     </property>
     <property name="rightMargin">
-     <number>2</number>
+     <number>1</number>
     </property>
     <property name="bottomMargin">
-     <number>2</number>
+     <number>1</number>
     </property>
     <property name="spacing">
-     <number>2</number>
+     <number>1</number>
     </property>
     <item row="0" column="0" rowspan="2">
      <layout class="QVBoxLayout" name="verticalLayout">
@@ -93,9 +93,51 @@
             <height>25</height>
            </size>
           </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 255, 255);</string>
+          </property>
           <property name="text">
            <string>原始请求数据</string>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBox_ShowType_3">
+          <property name="minimumSize">
+           <size>
+            <width>60</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>60</width>
+            <height>30</height>
+           </size>
+          </property>
+          <item>
+           <property name="text">
+            <string>ASCLL</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>16进制</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>10进制</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>2进制</string>
+           </property>
+          </item>
          </widget>
         </item>
        </layout>
@@ -143,8 +185,14 @@ p, li { white-space: pre-wrap; }
             <height>25</height>
            </size>
           </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 255, 255);</string>
+          </property>
           <property name="text">
            <string>原始响应数据</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -179,7 +227,7 @@ p, li { white-space: pre-wrap; }
           </item>
           <item>
            <property name="text">
-            <string>2  进制</string>
+            <string>2进制</string>
            </property>
           </item>
          </widget>

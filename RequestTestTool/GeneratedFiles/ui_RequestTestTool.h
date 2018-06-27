@@ -13,6 +13,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
@@ -54,9 +55,12 @@ public:
     QTextBrowser *textBrowser_Response;
     QHBoxLayout *horizontalLayout;
     QComboBox *comboBox_RequestType;
-    QPushButton *pushButton_Connect;
     QLineEdit *lineEdit_Address;
+    QLabel *label_Port;
+    QLineEdit *lineEdit_ConnectPort;
+    QCheckBox *checkBox_IsSSL;
     QPushButton *pushButton_Request;
+    QPushButton *pushButton_Connect;
     QLabel *label_SendDatalenth;
     QLCDNumber *lcdNumber_Send;
     QLabel *label_RecvDatalenth;
@@ -67,7 +71,7 @@ public:
     {
         if (RequestTestToolClass->objectName().isEmpty())
             RequestTestToolClass->setObjectName(QStringLiteral("RequestTestToolClass"));
-        RequestTestToolClass->resize(1200, 700);
+        RequestTestToolClass->resize(1200, 704);
         RequestTestToolClass->setMinimumSize(QSize(1200, 700));
         RequestTestToolClass->setMaximumSize(QSize(16777215, 16777215));
         centralWidget = new QWidget(RequestTestToolClass);
@@ -119,7 +123,7 @@ public:
         verticalLayout_3->setSpacing(0);
         verticalLayout_3->setObjectName(QStringLiteral("verticalLayout_3"));
         horizontalLayout_3 = new QHBoxLayout();
-        horizontalLayout_3->setSpacing(0);
+        horizontalLayout_3->setSpacing(5);
         horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
         label_2 = new QLabel(layoutWidget1);
         label_2->setObjectName(QStringLiteral("label_2"));
@@ -163,7 +167,7 @@ public:
         verticalLayout_2->setSpacing(0);
         verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
         horizontalLayout_2 = new QHBoxLayout();
-        horizontalLayout_2->setSpacing(0);
+        horizontalLayout_2->setSpacing(5);
         horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
         label = new QLabel(layoutWidget1);
         label->setObjectName(QStringLiteral("label"));
@@ -199,7 +203,7 @@ public:
         gridLayout->addWidget(splitter, 0, 0, 1, 1);
 
         horizontalLayout = new QHBoxLayout();
-        horizontalLayout->setSpacing(0);
+        horizontalLayout->setSpacing(5);
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
         horizontalLayout->setSizeConstraint(QLayout::SetDefaultConstraint);
         comboBox_RequestType = new QComboBox(centralWidget);
@@ -208,13 +212,6 @@ public:
         comboBox_RequestType->setMaximumSize(QSize(100, 25));
 
         horizontalLayout->addWidget(comboBox_RequestType);
-
-        pushButton_Connect = new QPushButton(centralWidget);
-        pushButton_Connect->setObjectName(QStringLiteral("pushButton_Connect"));
-        pushButton_Connect->setMinimumSize(QSize(60, 25));
-        pushButton_Connect->setMaximumSize(QSize(30, 25));
-
-        horizontalLayout->addWidget(pushButton_Connect);
 
         lineEdit_Address = new QLineEdit(centralWidget);
         lineEdit_Address->setObjectName(QStringLiteral("lineEdit_Address"));
@@ -228,12 +225,36 @@ public:
 
         horizontalLayout->addWidget(lineEdit_Address);
 
+        label_Port = new QLabel(centralWidget);
+        label_Port->setObjectName(QStringLiteral("label_Port"));
+
+        horizontalLayout->addWidget(label_Port);
+
+        lineEdit_ConnectPort = new QLineEdit(centralWidget);
+        lineEdit_ConnectPort->setObjectName(QStringLiteral("lineEdit_ConnectPort"));
+        lineEdit_ConnectPort->setMinimumSize(QSize(0, 25));
+        lineEdit_ConnectPort->setMaximumSize(QSize(16777215, 25));
+
+        horizontalLayout->addWidget(lineEdit_ConnectPort);
+
+        checkBox_IsSSL = new QCheckBox(centralWidget);
+        checkBox_IsSSL->setObjectName(QStringLiteral("checkBox_IsSSL"));
+
+        horizontalLayout->addWidget(checkBox_IsSSL);
+
         pushButton_Request = new QPushButton(centralWidget);
         pushButton_Request->setObjectName(QStringLiteral("pushButton_Request"));
         pushButton_Request->setMinimumSize(QSize(60, 25));
         pushButton_Request->setMaximumSize(QSize(60, 25));
 
         horizontalLayout->addWidget(pushButton_Request);
+
+        pushButton_Connect = new QPushButton(centralWidget);
+        pushButton_Connect->setObjectName(QStringLiteral("pushButton_Connect"));
+        pushButton_Connect->setMinimumSize(QSize(60, 25));
+        pushButton_Connect->setMaximumSize(QSize(30, 25));
+
+        horizontalLayout->addWidget(pushButton_Connect);
 
         label_SendDatalenth = new QLabel(centralWidget);
         label_SendDatalenth->setObjectName(QStringLiteral("label_SendDatalenth"));
@@ -313,15 +334,14 @@ public:
         comboBox_RequestType->clear();
         comboBox_RequestType->insertItems(0, QStringList()
          << QApplication::translate("RequestTestToolClass", "Socket", Q_NULLPTR)
-         << QApplication::translate("RequestTestToolClass", "Socket-SSL", Q_NULLPTR)
          << QApplication::translate("RequestTestToolClass", "Http-Get", Q_NULLPTR)
          << QApplication::translate("RequestTestToolClass", "Http-Post", Q_NULLPTR)
-         << QApplication::translate("RequestTestToolClass", "Https-Get", Q_NULLPTR)
-         << QApplication::translate("RequestTestToolClass", "Https-Post", Q_NULLPTR)
         );
-        pushButton_Connect->setText(QApplication::translate("RequestTestToolClass", "\350\277\236\346\216\245", Q_NULLPTR));
         lineEdit_Address->setText(QApplication::translate("RequestTestToolClass", "http://coolaf.com/tool/params", Q_NULLPTR));
+        label_Port->setText(QApplication::translate("RequestTestToolClass", "\347\253\257\345\217\243:", Q_NULLPTR));
+        checkBox_IsSSL->setText(QApplication::translate("RequestTestToolClass", "SSL", Q_NULLPTR));
         pushButton_Request->setText(QApplication::translate("RequestTestToolClass", "\345\217\221\351\200\201", Q_NULLPTR));
+        pushButton_Connect->setText(QApplication::translate("RequestTestToolClass", "\350\277\236\346\216\245", Q_NULLPTR));
         label_SendDatalenth->setText(QApplication::translate("RequestTestToolClass", "\345\217\221\351\200\201:", Q_NULLPTR));
         label_RecvDatalenth->setText(QApplication::translate("RequestTestToolClass", " \346\216\245\346\224\266:", Q_NULLPTR));
         comboBox_ShowType->clear();

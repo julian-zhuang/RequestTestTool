@@ -1,5 +1,6 @@
 #include "RequestTestTool.h"
 #include <qfiledialog.h>
+#include <qmessagebox.h>
 
 RequestTestTool::RequestTestTool(QWidget *parent)
 	: QMainWindow(parent)
@@ -91,15 +92,8 @@ void RequestTestTool::RequestTypeClick(int index)
 	if (index == 0) {
 		ui.tableWidget_Header->setVisible(false);
 		ui.tableWidget_values->setHorizontalHeaderLabels(m_StringList_Socket);
-		ui.pushButton_Connect->setVisible(true);
-		AddressChecking();
-		return;
-	}
-	//Socket-SSL
-	if (index == 1) {
-		ui.tableWidget_Header->setVisible(false);
-		ui.tableWidget_values->setHorizontalHeaderLabels(m_StringList_Socket);
-		ui.pushButton_Connect->setVisible(true);
+		ui.lineEdit_ConnectPort->setVisible(true);
+		ui.label_Port->setVisible(true);
 		AddressChecking();
 		return;
 	}
@@ -107,7 +101,8 @@ void RequestTestTool::RequestTypeClick(int index)
 	if (index == 2) {
 		ui.tableWidget_Header->setVisible(true);
 		ui.tableWidget_values->setHorizontalHeaderLabels(m_StringList_Values);
-		ui.pushButton_Connect->setVisible(false);
+		ui.lineEdit_ConnectPort->setVisible(false);
+		ui.label_Port->setVisible(false);
 		AddressChecking();
 		return;
 	}
@@ -115,23 +110,8 @@ void RequestTestTool::RequestTypeClick(int index)
 	if (index == 3) {
 		ui.tableWidget_Header->setVisible(true);
 		ui.tableWidget_values->setHorizontalHeaderLabels(m_StringList_Values);
-		ui.pushButton_Connect->setVisible(false);
-		AddressChecking();
-		return;
-	}
-	//Https-Get
-	if (index == 4) {
-		ui.tableWidget_Header->setVisible(true);
-		ui.tableWidget_values->setHorizontalHeaderLabels(m_StringList_Values);
-		ui.pushButton_Connect->setVisible(false);
-		AddressChecking();
-		return;
-	}
-	//Https-Post
-	if (index == 5) {
-		ui.tableWidget_Header->setVisible(true);
-		ui.tableWidget_values->setHorizontalHeaderLabels(m_StringList_Values);
-		ui.pushButton_Connect->setVisible(false);
+		ui.lineEdit_ConnectPort->setVisible(false);
+		ui.label_Port->setVisible(false);
 		AddressChecking();
 		return;
 	}
@@ -212,44 +192,97 @@ void RequestTestTool::DelValues()
 
 void RequestTestTool::RequestClick()
 {
-	if (ui.comboBox_RequestType->currentIndex() == 2) {
-		HttpRequestHeader.clear();
-		HttpRequestHeader.str("");
+	SocketRequestData.clear();
+	SocketRequestData.str("");
 
-		HttpRequestData.clear();
-		HttpRequestData.str(""); 
+	HttpRequestHeader.clear();
+	HttpRequestHeader.str("");
+
+	HttpRequestData.clear();
+	HttpRequestData.str("");
+
+	RequestData.clear();
+	RequestData.str("");
+
+	Response.clear();
+	Response.str("");
+
+	ui.textBrowser_Response->clear();
+	ui.textBrowser_Request->clear();
+
+	ui.lcdNumber_Recv->display(0);
+	ui.lcdNumber_Send->display(0);
+
+	if (ui.checkBox_IsSSL->checkState() == Qt::PartiallyChecked) {
+		switch (QMessageBox::information(NULL, "Information", "Enable SSL?", QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::No))
+		{
+		case QMessageBox::Yes:
+			ui.checkBox_IsSSL->setCheckState(Qt::Checked);
+		case QMessageBox::No:
+			ui.checkBox_IsSSL->setCheckState(Qt::Unchecked);
+		case QMessageBox::Cancel:
+			ui.checkBox_IsSSL->setCheckState(Qt::Unchecked);
+			return;
+		default:
+			ui.checkBox_IsSSL->setCheckState(Qt::Unchecked);
+			break;
+		}
+	}
+
+	if (ui.comboBox_RequestType->currentIndex() == 0) {
+
+		SocketRequestDataIni();
+
+		if (ui.checkBox_IsSSL->checkState() == Qt::Unchecked) {
+			m_NetWorkThread = new QNetWorkThread(Host, 80, false, RequestData, Response);
+		}
+
+		if (ui.checkBox_IsSSL->checkState() == Qt::Checked) {
+			m_NetWorkThread = new QNetWorkThread(Host, 443, true, RequestData, Response);
+		}
+
+		connect(m_NetWorkThread, SIGNAL(ThreadSignals(unsigned int, unsigned int)), this, SLOT(ThreadSignal(unsigned int, unsigned int)));
+		m_NetWorkThread->start();
+
+	}
+
+	if (ui.comboBox_RequestType->currentIndex() == 1) {
+
 		
-		RequestData.clear();
-		RequestData.str("");
-
-		Response.clear();
-		Response.str("");
-
-		ui.textBrowser_Response->clear();
-		ui.lcdNumber_Recv->display(0);
-		ui.lcdNumber_Send->display(0);
 		HttpGetRequestDataIni();
+
+		if (ui.checkBox_IsSSL->checkState() == Qt::Unchecked) {
+			m_NetWorkThread = new QNetWorkThread(Host, 80, false, RequestData, Response);
+		}
+
+		if (ui.checkBox_IsSSL->checkState() == Qt::Checked) {
+			m_NetWorkThread = new QNetWorkThread(Host, 443, true, RequestData, Response);
+		}
+		
+
+		connect(m_NetWorkThread, SIGNAL(ThreadSignals(unsigned int, unsigned int)), this, SLOT(ThreadSignalProcess(unsigned int, unsigned int)));
+		m_NetWorkThread->start();
 		
 	}
-	if (ui.comboBox_RequestType->currentIndex() == 3) {
-		HttpRequestHeader.clear();
-		HttpRequestHeader.str("");
 
-		HttpRequestData.clear();
-		HttpRequestData.str("");
-
-		RequestData.clear();
-		RequestData.str("");
-
-		Response.clear();
-		Response.str("");
-
-		ui.textBrowser_Response->clear();
-		ui.lcdNumber_Recv->display(0);
-		ui.lcdNumber_Send->display(0);
+	if (ui.comboBox_RequestType->currentIndex() == 2 ) {
 		HttpPostRequestDataIni();
-		
+
+		if (ui.checkBox_IsSSL->checkState() == Qt::Unchecked) {
+			m_NetWorkThread = new QNetWorkThread(Host, 80, false, RequestData, Response);
+		}
+
+		if (ui.checkBox_IsSSL->checkState() == Qt::Checked) {
+			m_NetWorkThread = new QNetWorkThread(Host, 443, true, RequestData, Response);
+		}
+
+		connect(m_NetWorkThread, SIGNAL(ThreadSignals(unsigned int, unsigned int)), this, SLOT(ThreadSignalProcess(unsigned int, unsigned int)));
+		m_NetWorkThread->start();
 	}
+}
+
+void RequestTestTool::ConnectClick()
+{
 }
 
 void RequestTestTool::LineEditEnd()
@@ -270,7 +303,7 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 		//连接超时
 		disconnect(m_NetWorkThread, SIGNAL(ThreadSignals(unsigned int, unsigned int)), this, SLOT(ThreadSignalProcess(unsigned int, unsigned int)));
 		if (m_NetWorkThread) {
-			delete m_NetWorkThread;
+			//delete m_NetWorkThread;
 		}
 		m_NetWorkThread = NULL;
 		ui.comboBox_RequestType->setEnabled(true);
@@ -278,8 +311,7 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 		ui.pushButton_Connect->setEnabled(true);
 		ui.pushButton_Request->setText(QString::fromLocal8Bit("发送"));
 		ui.pushButton_Request->setEnabled(true);
-		ui.textBrowser_Response->clear();
-		ui.textBrowser_Response->setText(QString::fromLocal8Bit("连接超时"));
+		QMessageBox::about(NULL, "Information", QString::fromLocal8Bit("连接超时"));
 		break;
 	case THREAD_CONNECT_SUCCESS:
 		//连接成功
@@ -299,7 +331,7 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 		//读取超时
 		disconnect(m_NetWorkThread, SIGNAL(ThreadSignals(unsigned int, unsigned int)), this, SLOT(ThreadSignalProcess(unsigned int, unsigned int)));
 		if (m_NetWorkThread) {
-			delete m_NetWorkThread;
+			//delete m_NetWorkThread;
 		}
 		m_NetWorkThread = NULL;
 		ui.comboBox_RequestType->setEnabled(true);
@@ -307,8 +339,7 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 		ui.pushButton_Connect->setEnabled(true);
 		ui.pushButton_Request->setText(QString::fromLocal8Bit("发送"));
 		ui.pushButton_Request->setEnabled(true);
-		ui.textBrowser_Response->clear();
-		ui.textBrowser_Response->setText(QString::fromLocal8Bit("读取超时"));
+		QMessageBox::about(NULL, "Information", QString::fromLocal8Bit("读取超时"));
 
 		break;
 	case THREAD_RECV_SUCCESS_COUNT:
@@ -324,7 +355,7 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 		//连接断开
 		disconnect(m_NetWorkThread, SIGNAL(ThreadSignalProcess(unsigned int, unsigned int)), this, SLOT(ThreadSignalProcess(unsigned int, unsigned int)));
 		if (m_NetWorkThread) {
-			delete m_NetWorkThread;
+			//delete m_NetWorkThread;
 		}
 		m_NetWorkThread = NULL;
 		ui.comboBox_RequestType->setEnabled(true);
@@ -332,14 +363,16 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 		ui.pushButton_Connect->setEnabled(true);
 		ui.pushButton_Request->setText(QString::fromLocal8Bit("发送"));
 		ui.pushButton_Request->setEnabled(true);
-		ui.textBrowser_Response->clear();
-		ui.textBrowser_Response->setText(QString::fromLocal8Bit("连接断开"));
+		QMessageBox::about(NULL, "Information", QString::fromLocal8Bit("连接断开"));
+		break;
+	case THREAD_SSL_FALLED:
+		QMessageBox::about(NULL, "Information", QString::fromLocal8Bit("SSL建立握手失败"));
 		break;
 	case THREAD_END:
 		//线程结束
 		disconnect(m_NetWorkThread, SIGNAL(ThreadSignals(unsigned int, unsigned int)), this, SLOT(ThreadSignalProcess(unsigned int, unsigned int)));
 		if (m_NetWorkThread) {
-			delete m_NetWorkThread;
+			//delete m_NetWorkThread;
 		}
 		m_NetWorkThread = NULL;
 		ui.comboBox_RequestType->setEnabled(true);
@@ -347,8 +380,9 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 		ui.pushButton_Connect->setEnabled(true);
 		ui.pushButton_Request->setText(QString::fromLocal8Bit("发送"));
 		ui.pushButton_Request->setEnabled(true);
-		ui.textBrowser_Response->setText(QString::fromStdString(Response.str()));
+		QMessageBox::about(NULL, "Information", QString::fromLocal8Bit("本次通讯结束！"));
 		break;
+	
 	default:
 		break;
 	}
@@ -389,11 +423,10 @@ int RequestTestTool::HttpPostRequestDataIni()
 	//HttpRequestHeader << "Content-Length:" << HttpRequestData.str().length();
 	HttpRequestHeader << "\r\n";
 
+	RequestData.clear();
+	RequestData.str("");
 	RequestData << HttpRequestHeader.str() << HttpRequestData.str();
 
-	m_NetWorkThread = new NetWorkThread(Host, 80, false, RequestData, Response);
-	connect(m_NetWorkThread, SIGNAL(ThreadSignals(unsigned int, unsigned int)), this, SLOT(ThreadSignalProcess(unsigned int, unsigned int)));
-	m_NetWorkThread->start();
 	return 0;
 }
 
@@ -442,92 +475,48 @@ int RequestTestTool::HttpGetRequestDataIni()
 	RequestData.clear();
 	RequestData.str("");
 	RequestData << HttpRequestHeader.str();
-	ui.textBrowser_Request->clear();
 
-	m_NetWorkThread = new NetWorkThread(Host, 80, false, RequestData, Response);
-	connect(m_NetWorkThread, SIGNAL(ThreadSignals(unsigned int, unsigned int)), this, SLOT(ThreadSignalProcess(unsigned int, unsigned int)));
-	m_NetWorkThread->start();
 	return 0;
 }
 
-int RequestTestTool::HttpSPostRequesDataInit()
+int RequestTestTool::SocketRequestDataIni()
 {
-	HttpRequestHeader.clear();
-	HttpRequestHeader.str("");
-	HttpRequestHeader << "POST" << " " << Path << " " << "HTTP/1.1\r\n";
-	HttpRequestHeader << "Host:" << " " << Host << "\r\n";
-
-	RequestData.str("");
+	SocketRequestData.str("");
+	for (int i = 0; i < ui.tableWidget_values->rowCount(); i++) {
+		if (ui.tableWidget_values->item(i, 0) == NULL) {
+			continue;
+		}
+		if (ui.tableWidget_values->item(i, 1) == NULL) {
+			continue;
+		}
+		if (ui.tableWidget_values->item(i, 0)->text().length() < 3) {
+			continue;
+		}
+		if (ui.tableWidget_values->item(i, 1)->text().length() == 0) {
+			continue;
+		}
+		if (ui.tableWidget_values->item(i, 0)->text() == "Int") {
+			int m_Int = ui.tableWidget_values->item(i, 1)->text().toInt();
+			SocketRequestData.write((const char*)&(m_Int), sizeof(int));
+		}
+		if (ui.tableWidget_values->item(i, 0)->text() == "UInt") {
+			unsigned int m_UInt = ui.tableWidget_values->item(i, 1)->text().toUInt();
+			SocketRequestData.write((const char*)&(m_UInt), sizeof(unsigned int));
+		}
+		if (ui.tableWidget_values->item(i, 0)->text() == "Char") {
+			SocketRequestData.write(ui.tableWidget_values->item(i, 1)->text().toStdString().c_str(), 1);
+		}
+		if (ui.tableWidget_values->item(i, 0)->text() == "Double") {
+			double m_Double = ui.tableWidget_values->item(i, 1)->text().toDouble();
+			SocketRequestData.write((char*)&m_Double, sizeof(double));
+		}
+		if (ui.tableWidget_values->item(i, 0)->text() == "String") {
+			SocketRequestData.write(ui.tableWidget_values->item(i, 1)->text().toStdString().c_str(), ui.tableWidget_values->item(i, 1)->text().length());
+		}
+	}
 	RequestData.clear();
-	//构建POST参数
-	for (int i = 0; i < ui.tableWidget_values->rowCount(); i++) {
-
-		if (!ui.tableWidget_values->item(i, 0)->text().length() || !ui.tableWidget_values->item(i, 1)->text().length()) {
-			continue;
-		}
-
-		RequestData << ui.tableWidget_values->item(i, 0)->text().toStdString() << "="
-			<< ui.tableWidget_values->item(i, 1)->text().toStdString();
-
-		if (i + 1 < ui.tableWidget_values->rowCount()) {
-			RequestData << "&";
-		}
-	}
-	RequestData << "\r\n";
-	//添加Header参数
-	for (int i = 0; i < ui.tableWidget_Header->rowCount(); i++) {
-		HttpRequestHeader << ui.tableWidget_Header->item(i, 0)->text().toStdString() << ": "
-			<< ui.tableWidget_Header->item(i, 1)->text().toStdString() << "\r\n";
-	}
-
-	HttpRequestHeader << "Content-Length:" << RequestData.str().length() << "\r\n";
-	HttpRequestHeader << "\r\n";
-
-	RequestData << HttpRequestHeader.str() << HttpRequestData.str();
-	m_NetWorkThread = new NetWorkThread(Host, 80, true, RequestData, Response);
-	connect(m_NetWorkThread, SIGNAL(ThreadSignals(unsigned int, unsigned int)), this, SLOT(ThreadSignal(unsigned int, unsigned int)));
-	m_NetWorkThread->start();
-	return 0;
-}
-
-int RequestTestTool::HttpSGetRequestDataIni()
-{
-	HttpRequestHeader.clear();
-	HttpRequestHeader.str("");
-	HttpRequestHeader << "GET " << Path;
-
-	if (ui.tableWidget_values->rowCount() > 0) {
-		HttpRequestHeader << "?";
-	}
-
-	for (int i = 0; i < ui.tableWidget_values->rowCount(); i++) {
-
-		if (!ui.tableWidget_values->item(i, 0)->text().length() || !ui.tableWidget_values->item(i, 1)->text().length()) {
-			continue;
-		}
-
-		HttpRequestHeader 
-			<< ui.tableWidget_values->item(i, 0)->text().toStdString() << "="
-			<< ui.tableWidget_values->item(i, 1)->text().toStdString();
-
-		if (i + 1 < ui.tableWidget_values->rowCount()) {
-			HttpRequestHeader << "&";
-		}
-	}
-
-	HttpRequestHeader << "\r\n";
-
-	for (int i = 0; i < ui.tableWidget_Header->rowCount(); i++) {
-		HttpRequestHeader 
-			<< ui.tableWidget_Header->item(i, 0)->text().toStdString() << ": "
-			<< ui.tableWidget_Header->item(i, 1)->text().toStdString() << "\r\n";
-	}
-	//HttpRequestHeader << "\r\n\r\n";
-
-	RequestData << HttpRequestHeader.str();
-	m_NetWorkThread = new NetWorkThread(Host, 80, true, RequestData, Response);
-	connect(m_NetWorkThread, SIGNAL(ThreadSignals(unsigned int, unsigned int)), this, SLOT(ThreadSignal(unsigned int, unsigned int)));
-	m_NetWorkThread->start();
+	RequestData.str("");
+	RequestData << SocketRequestData.str();
 	return 0;
 }
 
@@ -598,149 +587,4 @@ int SetTableWidget(QTableWidget * Utable, int URow, int UCol, QString UValus)
 		m_Item->setText(UValus);
 	}
 	return 0;
-}
-
-NetWorkThread::~NetWorkThread()
-{
-	
-}
-
-void NetWorkThread::SetTimeOut(unsigned int UtimeOut)
-{
-	TimeOut = UtimeOut * 100;
-}
-
-void NetWorkThread::run()
-{//讲究对称，别问我两个if为什么这么写
-	if (SSLStats == true) {
-		QSslSocket m_socket;
-
-		int RequestDataLenth = RequestData.str().length();
-		int  SentSuccessfully = 0;
-		int  RecvDataCount = 1;
-		const char *m_RequestData = RequestData.str().c_str();
-
-		connect(&m_socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(NW_Error(QAbstractSocket::SocketError)), Qt::DirectConnection);
-		connect(&m_socket, SIGNAL(disconnected()), this, SLOT(NW_Disconnect()), Qt::DirectConnection);
-		connect(&m_socket, SIGNAL(sslErrors()), this, SLOT(NWSSLError()), Qt::DirectConnection);
-		connect(&m_socket, SIGNAL(encrypted()), this, SLOT(NW_Encrypted()), Qt::DirectConnection);
-
-		m_socket.modeChanged(QSslSocket::SslClientMode);
-		m_socket.connectToHost(QString::fromStdString(Host), 443);
-		if (!m_socket.waitForConnected(TimeOut)) {
-			emit ThreadSignals(THREAD_CONNECT_TIMEOUT, 0); //连接超时
-			return;
-		}
-		emit ThreadSignals(THREAD_CONNECT_SUCCESS, 0);
-		m_socket.startClientEncryption();
-		if (!m_socket.waitForEncrypted(TimeOut)) {
-			emit ThreadSignals(THREAD_SSL_FALLED, 0);
-			m_socket.disconnect();
-			return;
-		}
-		emit ThreadSignals(THREAD_SSL_SUCCESSFUL, 0);
-
-		while (RequestDataLenth - SentSuccessfully > 0)
-		{
-			SentSuccessfully = m_socket.write(m_RequestData + SentSuccessfully, RequestDataLenth - SentSuccessfully);
-			emit ThreadSignals(THREAD_SEND_SUCCESS_COUNT, SentSuccessfully); //发送计数
-		}
-
-		QByteArray ResponseData;
-		QByteArray ResponseData_Tmp;
-		Response.clear();
-		Response.str("");
-		ResponseData.clear();
-		ResponseData_Tmp.clear();
-
-		if (!m_socket.waitForReadyRead(TimeOut)) {
-			emit ThreadSignals(THREAD_RECV_TIMEOUT, 0); //接收计数
-			return;
-		}
-
-		while (RecvDataCount) {
-			ResponseData_Tmp.clear();
-			ResponseData_Tmp = m_socket.readAll();
-			RecvDataCount = ResponseData_Tmp.size();
-			ResponseData.append(ResponseData_Tmp);
-			emit ThreadSignals(THREAD_RECV_SUCCESS_COUNT, ResponseData.size()); //接收计数
-		}
-
-		Response << ResponseData.toStdString();
-		emit ThreadSignals(THREAD_RECV_SUCCESS, 0);
-		m_socket.disconnect();
-		emit ThreadSignals(THREAD_END, 0);
-
-	}
-	if (SSLStats == false) {
-		emit ThreadSignals(THREAD_START, 0);
-		QTcpSocket m_socket;
-
-		connect(&m_socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(NW_Error(QAbstractSocket::SocketError)), Qt::DirectConnection);
-		connect(&m_socket, SIGNAL(disconnected()), this, SLOT(NW_Disconnect()), Qt::DirectConnection);
-
-		int RequestDataLenth = RequestData.str().length();
-		int  SentSuccessfully = 0;
-		int  RecvDataCount = 1;
-		const char *m_RequestData = RequestData.str().c_str();
-
-		m_socket.connectToHost(Host.c_str(), Port);
-		if (!m_socket.waitForConnected(TimeOut)) {
-			emit ThreadSignals(THREAD_CONNECT_TIMEOUT, 0); //连接超时
-			return;
-		}
-		emit ThreadSignals(THREAD_CONNECT_SUCCESS, 0);
-		while (RequestDataLenth - SentSuccessfully > 0)
-		{
-			SentSuccessfully = m_socket.write(m_RequestData + SentSuccessfully, RequestDataLenth - SentSuccessfully);
-			emit ThreadSignals(THREAD_SEND_SUCCESS_COUNT, SentSuccessfully); //发送计数
-		}
-
-		emit ThreadSignals(THREAD_SEND_SUCCESS, SentSuccessfully); //发送完成
-
-		QByteArray ResponseData;
-		QByteArray ResponseData_Tmp;
-		Response.clear();
-		Response.str("");
-		ResponseData.clear();
-		ResponseData_Tmp.clear();
-
-		if (!m_socket.waitForReadyRead(TimeOut)) {
-			emit ThreadSignals(THREAD_RECV_TIMEOUT, 0); //接收计数
-			return;
-		}
-
-		while (RecvDataCount) {
-			ResponseData_Tmp.clear();
-			ResponseData_Tmp = m_socket.readAll();
-			RecvDataCount = ResponseData_Tmp.size();
-			ResponseData.append(ResponseData_Tmp);
-			emit ThreadSignals(THREAD_RECV_SUCCESS_COUNT, ResponseData.size()); //接收计数
-		}
-
-		Response << ResponseData.toStdString();
-		emit ThreadSignals(THREAD_RECV_SUCCESS, 0);
-		m_socket.disconnect();
-		emit ThreadSignals(THREAD_END, 0);
-		return;
-	}
-}
-
-void NetWorkThread::NW_Disconnect()
-{
-	int a = 0;
-}
-
-void NetWorkThread::NW_Error(QAbstractSocket::SocketError socketError)
-{
-	int a = socketError;
-}
-
-void NetWorkThread::NWSSLError()
-{
-}
-
-void NetWorkThread::NW_Encrypted()
-{
-	isEncryption = true;
 }

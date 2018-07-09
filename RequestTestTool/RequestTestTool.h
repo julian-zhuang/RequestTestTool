@@ -38,7 +38,6 @@ public slots:
 	void LineEditEnd();
 	
 	void ThreadSignalProcess(unsigned int Uststus, unsigned int UDatasize);
-	void ThreadContorlProcess(unsigned int Uststus,unsigned int* UControlCode);
 public:
 	int HttpPostRequestDataIni();
 	int HttpGetRequestDataIni();
@@ -69,7 +68,6 @@ private:
 	*/
 
 	bool DisconnectPusbuttonClick;
-	bool WaitingSend;
 	bool Connecting;
 	bool PortCustomize;
 	std::stringstream HttpRequestHeader;

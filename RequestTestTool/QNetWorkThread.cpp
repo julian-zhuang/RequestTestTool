@@ -2,10 +2,10 @@
 
 QNetWorkThread::~QNetWorkThread()
 {
-	if (SSLEnadble == false) {
+	if (SSL_Enadble == false) {
 		m_socket.disconnect();
 	}
-	if (SSLEnadble == true) {
+	if (SSL_Enadble == true) {
 		m_SSLsocket.disconnect();
 	}
 }
@@ -20,17 +20,26 @@ void QNetWorkThread::SetKeepAlive(bool Ubool)
 	IsKeepAlive = Ubool;
 }
 
+void QNetWorkThread::SetThreadControlSignal(unsigned int UCOntorl)
+{
+	m_ControlSignal = UCOntorl;
+}
+
 void QNetWorkThread::run()
 {
 	
+	//发出线程开始的信号
 	emit ThreadStatusSignals(THREAD_START, 0);
 	
+	//建立连接
 	if (EstablishConnection() < 0 ) {
 		emit ThreadStatusSignals(THREAD_END, 0);
 		return;
 	}
 	
-	while (1) {
+	//循环发送和读取
+	bool flag = true;
+	while (flag) {
 		if (SendRequestData() < 0 ) {
 			emit ThreadStatusSignals(THREAD_END, 0);
 			return;
@@ -40,9 +49,17 @@ void QNetWorkThread::run()
 			emit ThreadStatusSignals(THREAD_END, 0);
 			return;
 		}
-		if (WaitForControl(0) == 100) {
-			emit ThreadStatusSignals(THREAD_END, 0);
-			return;
+		//一次发送接收完成，阻塞等待
+		switch (WaitControlSignal())
+		{
+		case THREAD_CONTROL_CONTINUE:
+			break;
+		case THREAD_CONTROL_STOP:
+			flag = false;
+			break;
+		default:
+			flag = false;
+			break;
 		}
 	} 
 
@@ -50,22 +67,20 @@ void QNetWorkThread::run()
 	return;
 }
 
-void QNetWorkThread::NW_Connected() {
-
-}
 void QNetWorkThread::NW_Disconnect()
 {
-	emit ThreadStatusSignals(THREAD_CONNECT_TIMEOUT, 0); //连接超时
+	emit ThreadStatusSignals(THREAD_CONNECTED, 0); //连接超时
 }
 
 void QNetWorkThread::NW_Error(QAbstractSocket::SocketError socketError)
 {
-	emit ThreadStatusSignals(THREAD_CONNECT_TIMEOUT, 0); //连接超时
+	int a = socketError;
+	int b = 0;
 }
 
 void QNetWorkThread::NW_SSLError()
 {
-	emit ThreadStatusSignals(THREAD_CONNECT_TIMEOUT, 0); //连接超时
+	m_ControlSignal = THREAD_CONTROL_STOP;
 }
 
 void QNetWorkThread::NW_Encrypted()
@@ -73,35 +88,37 @@ void QNetWorkThread::NW_Encrypted()
 	isEncryption = true;
 }
 
-int QNetWorkThread::WaitForControl(unsigned int Uststus)
+unsigned int QNetWorkThread::WaitControlSignal()
 {
-	while (1) {
-		emit(ThreadContorlSignals(Uststus, &m_ContorlCode));
-		if (m_ContorlCode == 0) {
-			std::cout << "wait......\n";
-			continue;
-		}
-		if (m_ContorlCode == 100) {
-			return 0;//终止
-		}
-		if (m_ContorlCode == 200) {
-			return 1;//继续发送接收
-		}
-		sleep(1000);
+	if (IsKeepAlive == false) {
+		return THREAD_CONTROL_STOP;
 	}
+	while (1)
+	{
+		if (m_ControlSignal == THREAD_CONTROL_STOP) {
+			m_ControlSignal = 0;
+			return THREAD_CONTROL_STOP;
+		}
+		if (m_ControlSignal == THREAD_CONTROL_CONTINUE) {
+			m_ControlSignal = 0;
+			return THREAD_CONTROL_CONTINUE;
+		}
+		usleep(1);//切换CPU时间片
+	}
+	return 0;
 }
 
 int QNetWorkThread::EstablishConnection()
 {
-	if (SSLEnadble == true) {
+	if (SSL_Enadble == true) {
 		connect(&m_SSLsocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(NW_Error(QAbstractSocket::SocketError)), Qt::DirectConnection);
 		connect(&m_SSLsocket, SIGNAL(disconnected()), this, SLOT(NW_Disconnect()), Qt::DirectConnection);
-		connect(&m_SSLsocket, SIGNAL(sslErrors()), this, SLOT(NWSSLError()), Qt::DirectConnection);
+		connect(&m_SSLsocket, SIGNAL(sslErrors()), this, SLOT(NW_SSLError()), Qt::DirectConnection);
 		connect(&m_SSLsocket, SIGNAL(encrypted()), this, SLOT(NW_Encrypted()), Qt::DirectConnection);
 
 		m_SSLsocket.modeChanged(QSslSocket::SslClientMode);
-		m_socket.connectToHost(QString::fromStdString(Host), 443);
-		if (!m_socket.waitForConnected(TimeOut)) {
+		m_SSLsocket.connectToHost(QString::fromStdString(Host), Port);
+		if (!m_SSLsocket.waitForConnected(TimeOut)) {
 			emit ThreadStatusSignals(THREAD_CONNECT_TIMEOUT, 0); //连接超时
 			return -1;
 		}
@@ -112,10 +129,9 @@ int QNetWorkThread::EstablishConnection()
 			m_SSLsocket.disconnect();
 			return -2;
 		}
-
 		emit ThreadStatusSignals(THREAD_SSL_SUCCESSFUL, 0);
 	}
-	if (SSLEnadble == false) {
+	if (SSL_Enadble == false) {
 		connect(&m_socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(NW_Error(QAbstractSocket::SocketError)), Qt::DirectConnection);
 		connect(&m_socket, SIGNAL(disconnected()), this, SLOT(NW_Disconnect()), Qt::DirectConnection);
 
@@ -135,7 +151,7 @@ int QNetWorkThread::SendRequestData()
 	int  SentSuccessfully = 0;
 	const char *m_RequestData = RequestData.str().c_str();
 
-	if (SSLEnadble == true) {
+	if (SSL_Enadble == true) {
 		while (RequestDataLenth - SentSuccessfully > 0) {
 			SentSuccessfully = m_SSLsocket.write(m_RequestData + SentSuccessfully, RequestDataLenth - SentSuccessfully);
 			if (SentSuccessfully < 0) {
@@ -145,7 +161,7 @@ int QNetWorkThread::SendRequestData()
 			emit ThreadStatusSignals(THREAD_SEND_SUCCESS_COUNT, SentSuccessfully); //发送计数
 		}
 	}
-	if (SSLEnadble == false) {
+	if (SSL_Enadble == false) {
 		while (RequestDataLenth - SentSuccessfully > 0) {
 			SentSuccessfully = m_socket.write(m_RequestData + SentSuccessfully, RequestDataLenth - SentSuccessfully);
 			if (SentSuccessfully < 0) {
@@ -171,7 +187,7 @@ int QNetWorkThread::RecvResponseData()
 	m_Response_Tmp.clear();
 	int RecvDataCount = 1;
 
-	if (SSLEnadble == true) {
+	if (SSL_Enadble == true) {
 		
 		if (!m_SSLsocket.waitForReadyRead(TimeOut)) {
 			emit ThreadStatusSignals(THREAD_RECV_TIMEOUT, 0); //接收超时
@@ -188,7 +204,7 @@ int QNetWorkThread::RecvResponseData()
 
 		ResponseData << m_Response.toStdString();
 	}
-	if (SSLEnadble == false) {
+	if (SSL_Enadble == false) {
 		if (!m_socket.waitForReadyRead(TimeOut)) {
 			emit ThreadStatusSignals(THREAD_RECV_TIMEOUT, 0); //接收超时
 			return -1;

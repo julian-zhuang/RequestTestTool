@@ -315,7 +315,7 @@ public:
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'SimSun'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">\351\230\277\350\213\217\345\244\247\345\253\202\346\211\223\346\211\253\345\276\227</p></body></html>", Q_NULLPTR));
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">\345\216\237\345\247\213\350\257\267\346\261\202\346\225\260\346\215\256</p></body></html>", Q_NULLPTR));
         label->setText(QApplication::translate("RequestTestToolClass", "\345\216\237\345\247\213\345\223\215\345\272\224\346\225\260\346\215\256", Q_NULLPTR));
         comboBox_ShowType_2->clear();
         comboBox_ShowType_2->insertItems(0, QStringList()
@@ -328,7 +328,7 @@ public:
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'SimSun'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">\351\230\277\350\213\217\345\244\247\345\253\202\346\211\223\346\211\253\345\276\227</p></body></html>", Q_NULLPTR));
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">\346\216\245\346\224\266\346\225\260\346\215\256</p></body></html>", Q_NULLPTR));
         comboBox_RequestType->clear();
         comboBox_RequestType->insertItems(0, QStringList()
          << QApplication::translate("RequestTestToolClass", "Socket", Q_NULLPTR)

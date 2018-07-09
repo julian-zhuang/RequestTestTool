@@ -283,7 +283,6 @@ void RequestTestTool::RequestClick()
 		SocketRequestDataIni();
 
 		if (Connecting == true) {
-			WaitingSend = true;
 			return;
 		}
 
@@ -308,7 +307,6 @@ void RequestTestTool::RequestClick()
 		HttpGetRequestDataIni();
 
 		if (Connecting == true) {
-			WaitingSend = true;
 			return;
 		}
 
@@ -333,7 +331,6 @@ void RequestTestTool::RequestClick()
 		HttpPostRequestDataIni();
 
 		if (Connecting == true) {
-			WaitingSend = true;
 			return;
 		}
 
@@ -355,7 +352,7 @@ void RequestTestTool::RequestClick()
 
 void RequestTestTool::DisConnectClick()
 {
-	DisconnectPusbuttonClick = true;
+	m_NetWorkThread->SetThreadControlSignal(THREAD_CONTROL_STOP);
 }
 
 void RequestTestTool::LineEditEnd()
@@ -378,7 +375,6 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 		ui.lineEdit_ConnectPort->setEnabled(false);
 		DisconnectPusbuttonClick = false;
 		Connecting = false;
-		WaitingSend = true;
 		break;
 	case THREAD_CONNECT_TIMEOUT:
 		//连接超时
@@ -401,7 +397,6 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 		break;
 	case THREAD_SEND_SUCCESS:
 		//发送完成
-		WaitingSend = false;
 		ui.textBrowser_Request->clear();
 		if (ui.comboBox_ShowType_3->currentIndex() == 0) {
 			ui.textBrowser_Request->setText(RequestData.str().c_str());
@@ -470,29 +465,11 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 		ui.pushButton_DisConnect->setEnabled(false);
 
 		Connecting = false;
-		WaitingSend = false;
 		QMessageBox::about(NULL, "Information", QString::fromLocal8Bit("本次通讯结束！"));
 		break;
 	default:
 		break;
 	}
-}
-
-void RequestTestTool::ThreadContorlProcess(unsigned int Uststus, unsigned int* UControlCode)
-{
-	if (Connecting == false) {
-		*UControlCode = 100;
-		return;
-	}
-	if (DisconnectPusbuttonClick == true) {
-		*UControlCode = 100;
-		return;
-	}
-	if (WaitingSend == true) {
-		*UControlCode = 200;
-		return;
-	}
-	
 }
 
 int RequestTestTool::HttpPostRequestDataIni()

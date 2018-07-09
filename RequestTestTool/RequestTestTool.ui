@@ -349,7 +349,7 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="minimumSize">
          <size>
-          <width>557</width>
+          <width>400</width>
           <height>25</height>
          </size>
         </property>
@@ -367,7 +367,7 @@ p, li { white-space: pre-wrap; }
       <item>
        <widget class="QLabel" name="label_Port">
         <property name="text">
-         <string>端口:</string>
+         <string>:</string>
         </property>
        </widget>
       </item>
@@ -375,13 +375,13 @@ p, li { white-space: pre-wrap; }
        <widget class="QLineEdit" name="lineEdit_ConnectPort">
         <property name="minimumSize">
          <size>
-          <width>0</width>
+          <width>40</width>
           <height>25</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>16777215</width>
+          <width>40</width>
           <height>25</height>
          </size>
         </property>
@@ -395,40 +395,9 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_Request">
-        <property name="minimumSize">
-         <size>
-          <width>60</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>60</width>
-          <height>25</height>
-         </size>
-        </property>
+       <widget class="QCheckBox" name="checkBox_IsKeepAlive">
         <property name="text">
-         <string>发送</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_Connect">
-        <property name="minimumSize">
-         <size>
-          <width>60</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>30</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>连接</string>
+         <string>长连接</string>
         </property>
        </widget>
       </item>
@@ -447,7 +416,7 @@ p, li { white-space: pre-wrap; }
          </size>
         </property>
         <property name="text">
-         <string>发送:</string>
+         <string>发送</string>
         </property>
        </widget>
       </item>
@@ -506,7 +475,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBox_ShowType">
+       <widget class="QPushButton" name="pushButton_Request">
         <property name="minimumSize">
          <size>
           <width>60</width>
@@ -519,26 +488,28 @@ p, li { white-space: pre-wrap; }
           <height>25</height>
          </size>
         </property>
-        <item>
-         <property name="text">
-          <string>ASCLL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>16进制</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>10进制</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>2  进制</string>
-         </property>
-        </item>
+        <property name="text">
+         <string>发送</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_DisConnect">
+        <property name="minimumSize">
+         <size>
+          <width>60</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>30</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>断开</string>
+        </property>
        </widget>
       </item>
      </layout>

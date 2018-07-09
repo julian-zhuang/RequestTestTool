@@ -16,6 +16,10 @@
 #define THREAD_SSL_SUCCESSFUL 111
 #define THREAD_SSL_FALLED 112
 
+#define THREAD_CONTROL_CONTINUE 8978;
+#define THREAD_CONTROL_STOP 8975;
+#define THREAD_CONTROL_NEXT 89348;
+
 #include <QThread>
 #include <qtcpsocket.h>
 #include <qsslsocket.h>
@@ -31,7 +35,7 @@ class QNetWorkThread : public QThread
 	Q_OBJECT
 
 signals :
-	void ThreadSignals(unsigned int Uststus, unsigned int UDatasize);
+	void ThreadStatusSignals(unsigned int Uststus, unsigned int UDatasize);
 	/*
 	100 线程开始
 	400 连接错误
@@ -39,11 +43,12 @@ signals :
 	600 读取中状态
 	700 线程结束
 	*/
+	void ThreadContorlSignals(unsigned int Uststus,unsigned int *UContorl);
 public:
 	QNetWorkThread() = delete;
 	QNetWorkThread(QNetWorkThread &) = delete;
-	QNetWorkThread(std::string UHost, unsigned int UPort, bool USSLStatus, std::stringstream &URequestData, std::stringstream &UResponseData)
-		:Host(UHost), Port(UPort), RequestData(URequestData), ResponseData(UResponseData), SSLStats(USSLStatus) {
+	QNetWorkThread(std::string UHost, unsigned int UPort, bool USSLEnadble, std::stringstream &URequestData, std::stringstream &UResponseData)
+		:Host(UHost), Port(UPort), RequestData(URequestData), ResponseData(UResponseData), SSLEnadble(USSLEnadble) {
 		TimeOut = 5000;
 		isEncryption = false;
 	};
@@ -56,13 +61,18 @@ public:
 	*/
 	~QNetWorkThread();
 	void SetTimeOut(unsigned int UtimeOut);
+	void SetKeepAlive(bool Ubool);//是否启用长连接
+
 	void run();
 public slots:
-	void NW_Disconnect();
-	void NW_Error(QAbstractSocket::SocketError socketError);
-	void NWSSLError();
-	void NW_Encrypted();
+	void NW_Connected();//连接成功
+	void NW_Disconnect();//连接断开
+	void NW_Error(QAbstractSocket::SocketError socketError);//发生错误
+	void NW_SSLError();//SSL错误
+	void NW_Encrypted();//SSL握手成功
 private:
+	unsigned int m_ContorlCode = 0;
+	int WaitForControl(unsigned int Uststus);
 	int EstablishConnection();
 	int SendRequestData();
 	int RecvResponseData();
@@ -71,9 +81,9 @@ private:
 	std::string Host;
 	unsigned int Port;
 	bool once;
-	bool SSLStats;
+	bool SSLEnadble;
 	bool isEncryption;
-
+	bool IsKeepAlive;
 	std::stringstream &RequestData; //请求数据
 	std::stringstream &ResponseData;//相应数据
 

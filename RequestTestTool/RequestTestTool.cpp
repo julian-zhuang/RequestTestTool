@@ -7,6 +7,8 @@ RequestTestTool::RequestTestTool(QWidget *parent)
 {
 	ui.setupUi(this);
 
+	ui.lineEdit_ConnectPort->setValidator(new QIntValidator(1, 65535, this));
+
 	ui.tableWidget_Header->setColumnCount(2);
 	ui.tableWidget_values->setColumnCount(2);
 	m_StringList_Header.append(QString::fromLocal8Bit("头标签"));
@@ -24,7 +26,9 @@ RequestTestTool::RequestTestTool(QWidget *parent)
 
 	ui.tableWidget_Header->setVisible(false);
 	ui.tableWidget_values->setHorizontalHeaderLabels(m_StringList_Socket);
-	ui.pushButton_Connect->setVisible(true);
+	ui.pushButton_DisConnect->setVisible(true);
+
+	ui.pushButton_DisConnect->setEnabled(false);
 
 	ui.tableWidget_values->horizontalHeader()->setStretchLastSection(true); //均分行
 	ui.tableWidget_values->setAlternatingRowColors(true);
@@ -40,10 +44,13 @@ RequestTestTool::RequestTestTool(QWidget *parent)
 	ui.tableWidget_Header->setSelectionMode(QAbstractItemView::SingleSelection);//单击选中整行
 	ui.tableWidget_Header->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-	connect(ui.comboBox_RequestType, SIGNAL(currentIndexChanged(int)), this, SLOT(RequestTypeClick(int)));
+	connect(ui.comboBox_RequestType, SIGNAL(currentIndexChanged(int)), this, SLOT(RequestTypeChange(int)));
 	connect(ui.lineEdit_Address, SIGNAL(editingFinished()), this, SLOT(LineEditEnd()));
 	connect(ui.pushButton_Request, SIGNAL(clicked()), this, SLOT(RequestClick()));
-
+	connect(ui.checkBox_IsKeepAlive, SIGNAL(stateChanged(int)), this, SLOT(EnableKeepAlive(int)));
+	connect(ui.checkBox_IsSSL, SIGNAL(stateChanged(int)), this, SLOT(EnableSSL(int)));
+	connect(ui.lineEdit_ConnectPort, SIGNAL(editingFinished()), this, SLOT(LineEditPort()));
+	connect(ui.pushButton_DisConnect, SIGNAL(clicked()), this, SLOT(DisConnectClick()));
 
 	QAction *m_Action = NULL;
 	m_Action = new QAction(QString::fromLocal8Bit("添加"));
@@ -86,36 +93,76 @@ RequestTestTool::RequestTestTool(QWidget *parent)
 	ui.textBrowser_Request->setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
-void RequestTestTool::RequestTypeClick(int index)
+void RequestTestTool::RequestTypeChange(int index)
 {
 	//Socket
 	if (index == 0) {
 		ui.tableWidget_Header->setVisible(false);
 		ui.tableWidget_values->setHorizontalHeaderLabels(m_StringList_Socket);
-		ui.lineEdit_ConnectPort->setVisible(true);
-		ui.label_Port->setVisible(true);
+		ui.lineEdit_ConnectPort->setText("");
+		PortCustomize = false;
 		AddressChecking();
 		return;
 	}
 	//Http-Get
-	if (index == 2) {
+	if (index == 1) {
 		ui.tableWidget_Header->setVisible(true);
 		ui.tableWidget_values->setHorizontalHeaderLabels(m_StringList_Values);
-		ui.lineEdit_ConnectPort->setVisible(false);
-		ui.label_Port->setVisible(false);
+		AddressChecking();
+		if (PortCustomize == false && ui.checkBox_IsSSL->checkState() == Qt::Checked) {
+			ui.lineEdit_ConnectPort->setText("443");
+		}
+		else {
+			if (PortCustomize == false) {
+				ui.lineEdit_ConnectPort->setText("80");
+			}
+		}
 		AddressChecking();
 		return;
 	}
 	//Http-Post
-	if (index == 3) {
+	if (index == 2) {
 		ui.tableWidget_Header->setVisible(true);
 		ui.tableWidget_values->setHorizontalHeaderLabels(m_StringList_Values);
-		ui.lineEdit_ConnectPort->setVisible(false);
-		ui.label_Port->setVisible(false);
+		AddressChecking();
+		if (PortCustomize == false && ui.checkBox_IsSSL->checkState() == Qt::Checked) {
+			ui.lineEdit_ConnectPort->setText("443");
+		}
+		else {
+			if (PortCustomize == false) {
+				ui.lineEdit_ConnectPort->setText("80");
+			}
+		}
 		AddressChecking();
 		return;
 	}
-	AddressChecking();
+}
+
+void RequestTestTool::LineEditPort()
+{
+	PortCustomize = true;
+}
+
+void RequestTestTool::EnableKeepAlive(int UStatus)
+{
+	if (UStatus == Qt::Checked) {
+		//ui.pushButton_DisConnect->setEnabled(true);
+	}
+	else {
+		//ui.pushButton_DisConnect->setEnabled(false);
+	}
+}
+
+void RequestTestTool::EnableSSL(int UStatus)
+{
+	if (PortCustomize == false && UStatus == Qt::Checked && (ui.comboBox_RequestType->currentIndex() == 1 || ui.comboBox_RequestType->currentIndex() == 2)) {
+		ui.lineEdit_ConnectPort->setText("443");
+	}
+	else {
+		if (PortCustomize == false &&ui.comboBox_RequestType->currentIndex() == 1 || ui.comboBox_RequestType->currentIndex() == 2) {
+			ui.lineEdit_ConnectPort->setText("80");
+		}
+	}
 }
 
 void RequestTestTool::CleanResponse()
@@ -213,6 +260,7 @@ void RequestTestTool::RequestClick()
 	ui.lcdNumber_Recv->display(0);
 	ui.lcdNumber_Send->display(0);
 
+	//过滤CheckBox的三态
 	if (ui.checkBox_IsSSL->checkState() == Qt::PartiallyChecked) {
 		switch (QMessageBox::information(NULL, "Information", "Enable SSL?", QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::No))
 		{
@@ -229,60 +277,85 @@ void RequestTestTool::RequestClick()
 		}
 	}
 
+	//socket请求
 	if (ui.comboBox_RequestType->currentIndex() == 0) {
 
 		SocketRequestDataIni();
 
-		if (ui.checkBox_IsSSL->checkState() == Qt::Unchecked) {
-			m_NetWorkThread = new QNetWorkThread(Host, 80, false, RequestData, Response);
+		if (Connecting == true) {
+			WaitingSend = true;
+			return;
 		}
 
-		if (ui.checkBox_IsSSL->checkState() == Qt::Checked) {
-			m_NetWorkThread = new QNetWorkThread(Host, 443, true, RequestData, Response);
+		if (Connecting == false && ui.checkBox_IsSSL->checkState() == Qt::Unchecked) {
+			m_NetWorkThread = new QNetWorkThread(Host, ui.lineEdit_ConnectPort->text().toUInt(), false, RequestData, Response);
+			m_NetWorkThread->SetKeepAlive(ui.checkBox_IsKeepAlive->checkState() == Qt::Checked ? true : false);
+		}
+
+		if (Connecting == false && ui.checkBox_IsSSL->checkState() == Qt::Checked) {
+			m_NetWorkThread = new QNetWorkThread(Host, ui.lineEdit_ConnectPort->text().toUInt(), true, RequestData, Response);
+			m_NetWorkThread->SetKeepAlive(ui.checkBox_IsKeepAlive->checkState() == Qt::Checked ? true : false);
 		}
 
 		connect(m_NetWorkThread, SIGNAL(ThreadSignals(unsigned int, unsigned int)), this, SLOT(ThreadSignal(unsigned int, unsigned int)));
+		connect(m_NetWorkThread, SIGNAL(ThreadContorlSignals(unsigned int, unsigned int)), this, SLOT(ThreadContorlProcess(unsigned int, unsigned int)));
 		m_NetWorkThread->start();
-
 	}
 
+	//http-Get请求
 	if (ui.comboBox_RequestType->currentIndex() == 1) {
-
 		
 		HttpGetRequestDataIni();
 
+		if (Connecting == true) {
+			WaitingSend = true;
+			return;
+		}
+
 		if (ui.checkBox_IsSSL->checkState() == Qt::Unchecked) {
-			m_NetWorkThread = new QNetWorkThread(Host, 80, false, RequestData, Response);
+			m_NetWorkThread = new QNetWorkThread(Host, ui.lineEdit_ConnectPort->text().toUInt(), false, RequestData, Response);
+			m_NetWorkThread->SetKeepAlive(ui.checkBox_IsKeepAlive->checkState() == Qt::Checked ? true : false);
 		}
 
 		if (ui.checkBox_IsSSL->checkState() == Qt::Checked) {
-			m_NetWorkThread = new QNetWorkThread(Host, 443, true, RequestData, Response);
+			m_NetWorkThread = new QNetWorkThread(Host, ui.lineEdit_ConnectPort->text().toUInt(), true, RequestData, Response);
+			m_NetWorkThread->SetKeepAlive(ui.checkBox_IsKeepAlive->checkState() == Qt::Checked ? true : false);
 		}
 		
+		connect(m_NetWorkThread, SIGNAL(ThreadStatusSignals(unsigned int, unsigned int)), this, SLOT(ThreadSignalProcess(unsigned int, unsigned int)));
+		connect(m_NetWorkThread, SIGNAL(ThreadContorlSignals(unsigned int, unsigned int*)), this, SLOT(ThreadContorlProcess(unsigned int, unsigned int*)));
 
-		connect(m_NetWorkThread, SIGNAL(ThreadSignals(unsigned int, unsigned int)), this, SLOT(ThreadSignalProcess(unsigned int, unsigned int)));
 		m_NetWorkThread->start();
-		
 	}
 
+	//http-Post请求
 	if (ui.comboBox_RequestType->currentIndex() == 2 ) {
 		HttpPostRequestDataIni();
 
+		if (Connecting == true) {
+			WaitingSend = true;
+			return;
+		}
+
 		if (ui.checkBox_IsSSL->checkState() == Qt::Unchecked) {
-			m_NetWorkThread = new QNetWorkThread(Host, 80, false, RequestData, Response);
+			m_NetWorkThread = new QNetWorkThread(Host, ui.lineEdit_ConnectPort->text().toUInt(), false, RequestData, Response);
+			m_NetWorkThread->SetKeepAlive(ui.checkBox_IsKeepAlive->checkState() == Qt::Checked ? true : false);
 		}
 
 		if (ui.checkBox_IsSSL->checkState() == Qt::Checked) {
-			m_NetWorkThread = new QNetWorkThread(Host, 443, true, RequestData, Response);
+			m_NetWorkThread = new QNetWorkThread(Host, ui.lineEdit_ConnectPort->text().toUInt(), true, RequestData, Response);
+			m_NetWorkThread->SetKeepAlive(ui.checkBox_IsKeepAlive->checkState() == Qt::Checked ? true : false);
 		}
 
 		connect(m_NetWorkThread, SIGNAL(ThreadSignals(unsigned int, unsigned int)), this, SLOT(ThreadSignalProcess(unsigned int, unsigned int)));
+		connect(m_NetWorkThread, SIGNAL(ThreadContorlSignals(unsigned int, unsigned int&)), this, SLOT(ThreadContorlProcess(unsigned int, unsigned int&)));
 		m_NetWorkThread->start();
 	}
 }
 
-void RequestTestTool::ConnectClick()
+void RequestTestTool::DisConnectClick()
 {
+	DisconnectPusbuttonClick = true;
 }
 
 void RequestTestTool::LineEditEnd()
@@ -298,6 +371,14 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 	case THREAD_START:
 		//线程开始
 		ui.pushButton_Request->setEnabled(false);
+		ui.checkBox_IsSSL->setEnabled(false);
+		ui.checkBox_IsKeepAlive->setEnabled(false);
+		ui.comboBox_RequestType->setEnabled(false);
+		ui.lineEdit_Address->setEnabled(false);
+		ui.lineEdit_ConnectPort->setEnabled(false);
+		DisconnectPusbuttonClick = false;
+		Connecting = false;
+		WaitingSend = true;
 		break;
 	case THREAD_CONNECT_TIMEOUT:
 		//连接超时
@@ -307,16 +388,12 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 		}
 		m_NetWorkThread = NULL;
 		ui.comboBox_RequestType->setEnabled(true);
-		ui.pushButton_Connect->setText(QString::fromLocal8Bit("连接"));
-		ui.pushButton_Connect->setEnabled(true);
-		ui.pushButton_Request->setText(QString::fromLocal8Bit("发送"));
-		ui.pushButton_Request->setEnabled(true);
 		QMessageBox::about(NULL, "Information", QString::fromLocal8Bit("连接超时"));
 		break;
 	case THREAD_CONNECT_SUCCESS:
 		//连接成功
-		ui.pushButton_Connect->setText(QString::fromLocal8Bit("断开"));
-		ui.pushButton_Request->setText(QString::fromLocal8Bit("终止"));
+		Connecting = true;
+		ui.pushButton_DisConnect->setEnabled(true);
 		break;
 	case THREAD_SEND_SUCCESS_COUNT:
 		//发送数据计数
@@ -324,8 +401,14 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 		break;
 	case THREAD_SEND_SUCCESS:
 		//发送完成
+		WaitingSend = false;
 		ui.textBrowser_Request->clear();
-		ui.textBrowser_Request->setText(RequestData.str().c_str());
+		if (ui.comboBox_ShowType_3->currentIndex() == 0) {
+			ui.textBrowser_Request->setText(RequestData.str().c_str());
+		}
+		if (ui.comboBox_ShowType_3->currentIndex() == 1) {
+			
+		}
 		break;
 	case THREAD_RECV_TIMEOUT:
 		//读取超时
@@ -335,8 +418,8 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 		}
 		m_NetWorkThread = NULL;
 		ui.comboBox_RequestType->setEnabled(true);
-		ui.pushButton_Connect->setText(QString::fromLocal8Bit("连接"));
-		ui.pushButton_Connect->setEnabled(true);
+		ui.pushButton_DisConnect->setText(QString::fromLocal8Bit("连接"));
+		ui.pushButton_DisConnect->setEnabled(true);
 		ui.pushButton_Request->setText(QString::fromLocal8Bit("发送"));
 		ui.pushButton_Request->setEnabled(true);
 		QMessageBox::about(NULL, "Information", QString::fromLocal8Bit("读取超时"));
@@ -349,7 +432,13 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 	case THREAD_RECV_SUCCESS:
 		//读取完成
 		ui.textBrowser_Response->clear();
-		ui.textBrowser_Response->setText(Response.str().c_str());
+		if (ui.comboBox_ShowType_2->currentIndex() == 0) {
+			ui.textBrowser_Response->setText(Response.str().c_str());
+		}
+		if (ui.comboBox_ShowType_2->currentIndex() == 1) {
+			
+		}
+		ui.pushButton_Request->setEnabled(true);
 		break;
 	case THREAD_CONNECTED:
 		//连接断开
@@ -358,11 +447,7 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 			//delete m_NetWorkThread;
 		}
 		m_NetWorkThread = NULL;
-		ui.comboBox_RequestType->setEnabled(true);
-		ui.pushButton_Connect->setText(QString::fromLocal8Bit("连接"));
-		ui.pushButton_Connect->setEnabled(true);
-		ui.pushButton_Request->setText(QString::fromLocal8Bit("发送"));
-		ui.pushButton_Request->setEnabled(true);
+		
 		QMessageBox::about(NULL, "Information", QString::fromLocal8Bit("连接断开"));
 		break;
 	case THREAD_SSL_FALLED:
@@ -375,17 +460,39 @@ void RequestTestTool::ThreadSignalProcess(unsigned int Uststus, unsigned int UDa
 			//delete m_NetWorkThread;
 		}
 		m_NetWorkThread = NULL;
-		ui.comboBox_RequestType->setEnabled(true);
-		ui.pushButton_Connect->setText(QString::fromLocal8Bit("连接"));
-		ui.pushButton_Connect->setEnabled(true);
-		ui.pushButton_Request->setText(QString::fromLocal8Bit("发送"));
 		ui.pushButton_Request->setEnabled(true);
+		ui.checkBox_IsSSL->setEnabled(true);
+		ui.checkBox_IsKeepAlive->setEnabled(true);
+		ui.comboBox_RequestType->setEnabled(true);
+		ui.lineEdit_Address->setEnabled(true);
+		ui.lineEdit_ConnectPort->setEnabled(true);
+
+		ui.pushButton_DisConnect->setEnabled(false);
+
+		Connecting = false;
+		WaitingSend = false;
 		QMessageBox::about(NULL, "Information", QString::fromLocal8Bit("本次通讯结束！"));
 		break;
-	
 	default:
 		break;
 	}
+}
+
+void RequestTestTool::ThreadContorlProcess(unsigned int Uststus, unsigned int* UControlCode)
+{
+	if (Connecting == false) {
+		*UControlCode = 100;
+		return;
+	}
+	if (DisconnectPusbuttonClick == true) {
+		*UControlCode = 100;
+		return;
+	}
+	if (WaitingSend == true) {
+		*UControlCode = 200;
+		return;
+	}
+	
 }
 
 int RequestTestTool::HttpPostRequestDataIni()
